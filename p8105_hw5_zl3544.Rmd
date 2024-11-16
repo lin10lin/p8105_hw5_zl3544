@@ -181,4 +181,23 @@ city_proportions %>%
     caption = "Proportion of Unsolved Homicides by City"
   )
 
+# Prepare data for plotting
+plot_data <- city_proportions %>%
+  arrange(estimated_proportion) %>%
+  mutate(city_state = factor(city_state, levels = city_state))
+
+# Create the plot
+ggplot(plot_data, aes(x = city_state, y = estimated_proportion)) +
+  geom_errorbar(aes(ymin = conf_low, ymax = conf_high), width = 0.33, color = "gray") +
+  geom_point(color = "orange") +
+  coord_flip() +
+  labs(
+    x = "City, State",
+    y = "Proportion of Unsolved Homicides",
+    title = "Estimated Proportion of Unsolved Homicides by City"
+  ) +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = 5))
+
+
 ```
