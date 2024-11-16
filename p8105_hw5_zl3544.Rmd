@@ -42,3 +42,39 @@ grid()
 ```
 
 From the plot, we know that as the group size increases, the probability of sharing birthday increases too.
+
+# Problem 2
+```{r}
+# Function to Simulate Mean and P-value
+simulate_mean_pvalue <- function(sample_size, true_mean = 0, std_dev = 5) {
+  sample_data <- rnorm(sample_size, mean = true_mean, sd = std_dev)
+  t_test <- t.test(sample_data, mu = 0)
+  result <- tibble(
+    estimated_mean = mean(sample_data),
+    p_value = t_test$p.value
+  )
+  return(result)
+}
+
+set.seed(1)
+true_means <- 0:6
+simulation_results <- map_dfr(true_means, function(mu) {
+  replicate(5000, simulate_mean_pvalue(30, true_mean = mu), simplify = FALSE) %>%
+    bind_rows() %>%
+    mutate(true_mean = mu)
+})
+
+# Calculate power for each true mean
+power_results <- simulation_results %>%
+  group_by(true_mean) %>%
+  summarize(power = mean(p_value < 0.05))
+
+# Calculate average estimates
+average_estimates <- simulation_results %>%
+  group_by(true_mean) %>%
+  summarize(
+    avg_estimate_all = mean(estimated_mean),
+    avg_estimate_rejected = mean(estimated_mean[p_value < 0.05])
+  )
+```
+
