@@ -1,0 +1,34 @@
+---
+title: "p8105_hw5_zl3544"
+output: github_document
+date: "2024-11-16"
+---
+
+
+```{r, message = FALSE}
+# Load Required Packages
+library(tidyverse)
+library(broom)
+library(knitr)
+library(ggplot2)
+```
+
+# Problem 1
+```{r}
+check_duplicate_birthday <- function(group_size) {
+  birthdays <- sample(1:365, group_size, replace = TRUE)
+  return(any(duplicated(birthdays)))
+}
+
+simulate_probabilities <- function(group_sizes, num_simulations = 10000) {
+  probabilities <- sapply(group_sizes, function(n) {
+    duplicates <- sum(replicate(num_simulations, check_duplicate_birthday(n)))
+    return(duplicates / num_simulations)
+  })
+  return(probabilities)
+}
+
+group_sizes <- 2:50
+probabilities <- simulate_probabilities(group_sizes)
+
+```
