@@ -116,3 +116,49 @@ ggplot(plot_data, aes(x = true_mean, y = average_estimate, color = sample_type))
 ```
 
 The average estimate of $\hat{\mu}$  across all samples closely matches the true mean. However, when considering only samples where the null hypothesis was rejected, the average estimate tends to be higher than the true mean, especially for smaller true mean values. This occurs due to selection bias, as only samples with larger deviations from the null are included.
+
+# Problem 3
+```{r}
+# Read the data from the GitHub repository
+homicide_data <- read_csv("https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv")
+
+homicide_data <- homicide_data %>%
+  mutate(city_state = paste(city, state, sep = ", "))
+
+unsolved_dispositions <- c("Closed without arrest", "Open/No arrest")
+
+# Summarize homicides by city
+city_summary <- homicide_data %>%
+  group_by(city_state) %>%
+  summarize(
+    total_homicides = n(),
+    unsolved_homicides = sum(disposition %in% unsolved_dispositions),
+    .groups = 'drop'
+  )
+
+city_summary %>%
+  kable(
+    col.names = c("City, State", "Total Homicides", "Unsolved Homicides"),
+    caption = "Summary of Homicides by City"
+  )
+
+# Proportion Test for Baltimore, MD
+baltimore_data <- homicide_data %>%
+  filter(city_state == "Baltimore, MD")
+
+total_cases <- nrow(baltimore_data)
+unsolved_cases <- sum(baltimore_data$disposition %in% unsolved_dispositions)
+
+prop_test_baltimore <- prop.test(unsolved_cases, total_cases) %>%
+  broom::tidy()
+
+estimated_proportion <- prop_test_baltimore$estimate
+conf_low <- prop_test_baltimore$conf.low
+conf_high <- prop_test_baltimore$conf.high
+
+tibble(
+  Estimated_Proportion = estimated_proportion,
+  Confidence_Interval_Low = conf_low,
+  Confidence_Interval_High = conf_high
+)
+```
