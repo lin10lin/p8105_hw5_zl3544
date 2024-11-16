@@ -161,4 +161,24 @@ tibble(
   Confidence_Interval_Low = conf_low,
   Confidence_Interval_High = conf_high
 )
+
+# proportion test for all cities
+city_proportions <- city_summary %>%
+  mutate(
+    prop_test = map2(unsolved_homicides, total_homicides, ~ prop.test(.x, .y) %>% broom::tidy())
+  ) %>%
+  unnest(prop_test) %>%
+  select(
+    city_state,
+    estimated_proportion = estimate,
+    conf_low = conf.low,
+    conf_high = conf.high
+  )
+
+city_proportions %>%
+  kable(
+    col.names = c("City, State", "Estimated Proportion", "CI Lower", "CI Upper"),
+    caption = "Proportion of Unsolved Homicides by City"
+  )
+
 ```
